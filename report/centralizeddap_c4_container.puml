@@ -1,0 +1,28 @@
+@startuml Data access context diagram
+!includeurl https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+LAYOUT_LEFT_RIGHT
+
+System_Boundary(MET, "Met Norway"){
+    Container(dap, "MET Norway Dap server", "Thredds OpenDaP", "Centralized DAP server.")
+    Container(ecflow_job, "Batch job", "Ecflow python job", "Triggered on time or event and produce a dataset.")
+
+    System_Ext(prodhub, "Production Hub")
+    System_Ext(lustre_gateway, "Gateway to PPI data")
+
+    Rel(dap, lustre_gateway, "Access datasets", "CIFS")
+    Rel(ecflow_job, prodhub, "Access to schedule, compute and storage.")
+    Rel(ecflow_job, dap, "Poll to check dataset availability")
+    Rel(ecflow_job, prodhub, "Register dataset event.", "CloudEvent/NATS")
+}
+
+Person(researcher, "Researcher")
+System_Ext(jupyter, "Jupyter lab")
+System_Ext(web_maps, "Web page with climate maps")
+
+Rel(web_maps, prodhub, "Listen for dataset events")
+Rel(web_maps, dap, "Stream relevant fresh data", "DAP")
+
+Rel(researcher, jupyter, "Interactive data mining", "Web GUI")
+Rel(jupyter, dap, "Stream variable from specific dataset", "DAP")
+@enduml
