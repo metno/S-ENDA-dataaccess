@@ -1,4 +1,5 @@
-# Evaluation of DAP and Zarr with object store backend.
+# Evaluation of data access services
+The focus of the evaulation has been on data access for streaming raw datasets, and two candidates have been evaulauted: OPeNDAP and Zarr via object stores.
 
 Evaluated against these criterias: https://s-enda-documentation.readthedocs.io/en/latest/architecture.html#s-enda-data-access-service-c4-diagrams
 
@@ -9,7 +10,7 @@ The functional criterias that both systems cover equally well will not be mentio
 
 The fastest solution for the producer will probably be the existing solution of writing netcdf file to lustre. Transformation to zarr format is pretty fast, but does require some cpu and time.
 
-If its feasible to produce datasets directly in the zarr format, the transformation cost will disappear. However, using S3 as a storage backend will probably be noticeably slower than lustre. 
+If its feasible to produce datasets directly in the zarr format, the transformation cost will disappear. However, using S3 as a storage backend will probably be noticeably slower than lustre.  
 
 So produce on lustre, either zarr or netcdf, and upload to S3 seems more realistic. 
 
@@ -18,24 +19,24 @@ Both DAP and Zarr have a very similar structure, based on the CDM data model and
 
 DAP is an older protocol, but how wide has the adoption been and how much support has the protocol today?
 
-Zarr is new, but has a lot of traction, across many scientific disicplines, and will also possibly be adopted as an OGC standard.
+Zarr is new, but has a lot of traction, across many scientific disciplines, and will also possibly be adopted as an OGC standard.
 
 ## Criteria: The data access service must work together with an event-driven production system
-DAP, at least Thredds, works by creating an index from polling the file system. So data access to a dataset through events can not be directly solved, as the event will typically arrive long before the datast is actually available.
+DAP, at least Thredds, works by creating an index from polling the file system. So data access to a dataset through events can not be directly solved, as the event will typically arrive long before the dataset is actually available.
 
 With Zarr/S3, you push data the object store and a successfull reply means the dataset is available. An event can then either be created after the push or by attaching an event system to the object store bucket.
 
 
-## Criteria: Futureproof, the data access service will work well with the current trends of technology in scientific computing.
-Using cloud-native commodity service like object store with S3 protocol will make it trivial to get up and running with distribution of project results. The project need not maintain any service for data access and need to perform any special configuration of the distribution service, but can trust that every cloud system, private or public, will have an object store available.
-
-OpenDAP requires mounting a distributed file-system and running a specialized data access service, either centrally or by each project itself.
-
+## Criteria: The data access service will work well with the current trends of technology in scientific computing.
 The assumption beeing that the meteorological institutions are now moving fast towards a cloud style infrastructure, co-existing with HPC-style infrastructure for running the NWP models and some of the post-processing.
+
+Using cloud-native commodity service like object store with S3 protocol will make it trivial to get up and running with distribution of project results. The project need not maintain any service for data access nor do any special configuration of the distribution service, but can trust that every cloud system, private or public, will have an object store available.
+
+OpenDAP requires mounting a distributed file-system and running a specialized data access service, either centrally or by each project itself. Requiring more maintenance and tighter coupling between access service and production, but also enable more control and customization for special needs.
 
 
 ## Criteria Maintainbility: 
-Zarr format uses commodity software like object stores. OpenDAP solutions are a specialized solution with limited community.
+Zarr format uses commodity services like object stores. OpenDAP solutions are a specialized solution with limited community.
 
 Object store scaling for peta-byte of multi-dimensional data has not been tried. Object stores are known to scale well, with relatively easy replication, with no query mechanisms outside reading/writing of blobs of data. So it should scale well, but it remains to be seen.
 
