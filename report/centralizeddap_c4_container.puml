@@ -4,11 +4,12 @@
 LAYOUT_LEFT_RIGHT
 
 System_Boundary(MET, "Met Norway"){
-    Container(dap, "MET Norway Dap server", "Thredds OpenDaP", "Centralized DAP server.")
+    Container(dap, "MET Norway Dap server", "Thredds OPeNDAP", "Centralized DAP server.")
     Container(ecflow_job, "Batch job", "Ecflow python job", "Triggered on time or event and produce a dataset.")
+    Container(MMS, "External MET messaging system", "REST/NATS", "External events about dataset production, from all hubs.")
 
     System_Ext(prodhub, "Production Hub")
-    System_Ext(lustre_gateway, "Gateway to PPI data")
+    System_Ext(lustre_gateway, "Gateway to PPI lustre")
 
     Rel(dap, lustre_gateway, "Access datasets", "CIFS")
     Rel(ecflow_job, prodhub, "Access to schedule, compute and storage.")
@@ -20,9 +21,10 @@ Person(researcher, "Researcher")
 System_Ext(jupyter, "Jupyter lab")
 System_Ext(web_maps, "Web page with climate maps")
 
-Rel(web_maps, prodhub, "Listen for dataset events")
+Rel(web_maps, MMS, "Listen for dataset events")
 Rel(web_maps, dap, "Stream relevant fresh data", "DAP")
 
 Rel(researcher, jupyter, "Interactive data mining", "Web GUI")
+Rel(jupyter, MMS, "Get latest event for a dataset.")
 Rel(jupyter, dap, "Stream variable from specific dataset", "DAP")
 @enduml

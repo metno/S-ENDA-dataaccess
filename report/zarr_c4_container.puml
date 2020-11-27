@@ -6,6 +6,7 @@ LAYOUT_LEFT_RIGHT
 System_Boundary(MET, "Met Norway"){
     Container(met_s3, "MET Norway object storage", "Swift S3 compliant", "Externally available object storage.")
     Container(ecflow_job, "Batch job", "Ecflow python job", "Triggered on time or event and produce a dataset.")
+    Container(MMS, "External MET messaging system", "REST/NATS", "External events about dataset production, from all hubs.")
     System_Ext(prodhub, "Production Hub")
  
     Rel(ecflow_job, met_s3, "Push dataset", "Zarr/S3")
@@ -17,9 +18,10 @@ Person(researcher, "Researcher")
 System_Ext(jupyter, "Jupyter lab")
 System_Ext(web_maps, "Web page with climate maps")
 
-Rel(web_maps, prodhub, "Listen for dataset events")
+Rel(web_maps, MMS, "Listen for dataset events")
 Rel(web_maps, met_s3, "Stream relevant fresh data", "S3/Zarr")
 
 Rel(researcher, jupyter, "Interactive data mining", "Web GUI")
+Rel(jupyter, MMS, "Get latest event for a dataset.")
 Rel(jupyter, met_s3, "Stream variable from specific dataset", "S3/Zarr")
 @enduml
